@@ -1,6 +1,8 @@
 // screens/conversion_screen.dart
 import 'package:flutter/material.dart';
+import 'package:quick_converter/screens/history_screen.dart';
 import '../utils/conversion_formulas.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ConversionScreen extends StatefulWidget {
   final String category;
@@ -46,6 +48,15 @@ class _ConversionScreenState extends State<ConversionScreen> {
     setState(() {
       result =
           '$input $fromUnit = ${convertedValue.toStringAsFixed(4)} $toUnit';
+    });
+
+    FirebaseFirestore.instance.collection('history').add({
+      'category': widget.category,
+      'input': input,
+      'from': fromUnit,
+      'to': toUnit,
+      'output': convertedValue,
+      'timestamp': FieldValue.serverTimestamp(),
     });
   }
 
@@ -108,6 +119,15 @@ class _ConversionScreenState extends State<ConversionScreen> {
             Text(result, style: TextStyle(fontSize: 18)),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.history),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HistoryScreen()),
+          );
+        },
       ),
     );
   }
